@@ -1,0 +1,16 @@
+public int countScore() {
+		
+		int total = 1;
+		
+		Iterator<int[]> itr = properties.values().iterator();
+		
+		int[] i = itr.next();
+		
+		for(int j : i)
+		{
+			total = total *j;
+		}
+		
+		return total;
+	}
+	

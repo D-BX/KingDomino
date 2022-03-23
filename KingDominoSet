@@ -1,0 +1,139 @@
+import java.awt.Point;
+import java.util.*; 
+public class KingDominoSet {
+	Map <Domino, ArrayList<Integer>> connectedDom = new HashMap<Domino,ArrayList<Integer>>(); //Dom number and num of doms touching
+	Map<Domino, Point> coordinates = new HashMap<Domino, Point>(); // key = dom val = coords
+	Map<String, Integer> record = new HashMap<String, Integer>();
+	
+	ArrayList<Domino> outerDoms = new ArrayList<Domino>();
+	ArrayList<Domino> matchDoms = new ArrayList<Domino>();
+
+	Map<String property, int[] numberOfThatProperty & numberOfCrowns> properties = new TreeMap<String property, int[] numberOfThatProperty & numberOfCrowns>();
+	String playerName;
+	KingDominoSet(String name, KingDomino homecard, Point pt){
+	playerName = name;
+	}
+	public String getName(){
+		return playerName;
+	}
+	public boolean ifExceed(Point pt) {
+		int val;
+		for(Point p : coordinates.values())
+			if(coordinates.get(p).equals(pt))
+				val++;
+		if(val == 5)
+			return true;
+		else
+			return false;
+	}
+	public ArrayList<Domino> getOuterDom(Domino d){
+		ArrayList<Domino> temp = new ArrayList<Domino>();
+		Point rightNorm = new Point(d.getWidth()*2/9+d.getWidth()*2/9, d.getHeight()/9); 
+		Point leftNorm = new Point(d.getWidth()*2/9-d.getWidth()*2/9, d.getHeight()/9); 
+		Point topNorm = new Point(d.getWidth()*2/9, d.getHeight()/9+d.getHeight()/9); 
+		Point botNorm = new Point(d.getWidth()*2/9, d.getHeight()/9-d.getHeight()/9); 
+		Point rightRot = new Point(d.getWidth()/9+d.getWidth()/9, d.getHeight()*2/9);
+		Point leftRot = new Point(d.getWidth()/9-d.getWidth()/9, d.getHeight()*2/9);
+		Point topRot = new Point(d.getWidth()/9, d.getHeight()*2/9+d.getHeight()*2/9);
+		Point botRot = new Point(d.getWidth()/9, d.getHeight()*2/9-d.getHeight()*2/9);
+		
+		if(coordinates.get(rightNorm) != null)
+			temp.add(coordinates.get(rightNorm));
+		if(coordinates.get(leftNorm) != null)
+			temp.add(coordinates.get(leftNorm));
+		if(coordinates.get(topNorm) != null)
+			temp.add(coordinates.get(topNorm));
+		if(coordinates.get(botNorm) != null)
+			temp.add(coordinates.get(botNorm));
+		if(coordinates.get(rightRot) != null)
+			temp.add(coordinates.get(rightRot));
+		if(coordinates.get(leftRot) != null)
+			temp.add(coordinates.get(leftRot));
+		if(coordinates.get(topRot) != null)
+			temp.add(coordinates.get(topRot));
+		if(coordinates.get(botRot) != null)
+			temp.add(coordinates.get(botRot));
+		return temp;
+		
+	}
+	public ArrayList<Domino> getMatchableDom(Domino d){
+		ArrayList <Domino> outDoms = new ArrayList<Domino>();
+		getOuterDom(outDoms);
+		for(int i = 0; i<outDoms.size(); i++) {
+			if(ifMatch(outDoms.get(i), d) == true)
+				matchDoms.add(outDoms.get(i));
+		}
+		return matchDoms;
+	}
+	public Boolean ifMatch(Domino d, Domino dom) {
+		if(d.getLeft() == dom)
+			return true;
+		else if(d.getRight() == dom)
+			return true;
+		else 
+			return false;
+	}
+	public HashMap<Domino, Point> toDraw(ArrayList<Integer> list) {
+		
+	}
+	public void addToConnectDom(Domino dom, Point pt){
+		if(coordinates.containsValue(pt)) {
+			Set<Domino> doms = coordinates.keySet();
+			for(Domino domino : doms) {
+				if(coordinates.get(domino).equals(dom)) {
+					connectedDom.put(dom, pt);
+				}
+			}
+		}
+			
+	}
+	public void addToCoordinates(Domino dom, Point pt){
+		coordinates.put(dom, pt);
+		addToConnectDom(dom, pt);
+	}
+	public void around(Domino d, Point p) {
+		List<Domino> list = connected(d, p);
+		ArrayList<Integer> type1 = new ArrayList<Integer>(); //Left terrain of D
+		ArrayList<Integer> type2 = new ArrayList<Integer>(); //Right terrain of D
+		int temp = 0;
+		for(int i = 0; i<list.size(); i++) {
+		if(d.getLeft() == list.get(i).getLeft())
+			type1.add(d.getNum());
+		else if(d.getRight() == list.get(i).getRight())
+			type2.add(d.getNum());
+		}
+		for(Integer vals: record) {
+			if (record.containsValue(type1.get(vals)){
+				temp++;
+			}
+		}
+		if(temp>=2) {
+			record.replace(d.getLeft(), temp);
+			temp = 0;
+		}
+		for(Integer vals: record) {
+			if (record.containsValue(type2.get(vals)){
+				temp++;
+			}
+		}
+		if(temp>=2) {
+			record.replace(d.getRight(), temp);
+			temp = 0;
+		}
+		int otherTemp = properties.get(d.getLeft())+1+d.getLeft().getCrown();
+		properties.replace(d.getLeft(), otherTemp);
+		
+		int otherTemp2 = properties.get(d.getRight())+1+d.getRight().getCrown();
+		properties.replace(d.getRight(), otherTemp2);
+		
+	}
+	public void countScore() {
+		
+	}
+	void collectProperty() {
+		
+	}
+	public void countCrown(String propertyType) {
+		
+	}
+}

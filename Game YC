@@ -1,0 +1,165 @@
+import java.util.*;
+import java.util.ListIterator;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+
+public class Game {
+	
+	private ArrayList<Domino> list;
+	private DominoSet red, yellow, blue, green;
+	
+	private ArrayList<DominoSet> winners;
+	private ArrayList<Integer> scores=new ArrayList<>();
+	
+	public Game() throws IOException
+	{
+		list=new ArrayList<>();
+		createDoms();
+		red=new DominoSet("red");
+		yellow=new DominoSet("yellow");
+		blue=new DominoSet("blue");
+		green=new DominoSet("green");
+	}
+	
+	//create the list of dominoes, storing images, shuffle it
+	public void createDoms() throws IOException
+	{
+		list.clear();
+		Scanner sc=new Scanner(new File("ImageName.txt"));
+		while(sc.hasNextLine())
+		{
+			String line=sc.nextLine();
+			String[] str=line.split(" ");
+			String valName = "/imgs/"+str[0];
+			String domName="/imgs/"+str[1];
+			int num=Integer.parseInt(str[2]);
+			BufferedImage v = ImageIO.read(Game.class.getResource(valName));
+			BufferedImage d = ImageIO.read(Game.class.getResource(domName));
+			Domino dom=new Domino(num, d, v);
+			list.add(dom);
+		}
+		Collections.shuffle(list, new Random(5));
+	}
+
+	public TreeSet<Domino> get4Dom()
+	{
+		TreeSet<Domino> set=new TreeSet<>();
+		for(int i=0; i<4; i++)
+		{
+			set.add(list.get(0));
+			list.remove(0);
+		}
+		return set;
+	}
+	
+	public boolean hasMore()
+	{
+		if(list.size()!=0)
+			return true;
+		return false;
+	}
+
+	public int remaining()
+	{
+		return list.size();
+	}
+	
+	public DominoSet getRed()
+	{
+		return red;
+	}
+	public DominoSet getYellow()
+	{
+		return yellow;
+	}
+	public DominoSet getBlue()
+	{
+		return blue;
+	}
+	public DominoSet getGreen()
+	{
+		return green;
+	}
+
+	public ArrayList<DominoSet> winner()
+	{
+		winners=new ArrayList<>();
+		getRed().countScore();
+		getYellow().countScore();
+		getBlue().countScore();
+		getGreen().countScore();
+		
+		scores.add(getRed().getScore());
+		scores.add(getYellow().getScore());
+		scores.add(getBlue().getScore());
+		scores.add(getGreen().getScore());
+		Collections.sort(scores);
+		Collections.reverse(scores);
+		
+		System.out.println("total scores: "+scores);
+		
+		
+		
+		//assign arraylist of dominoSet with largest score first 
+		Iterator<Integer> iter2=scores.iterator();
+		while(iter2.hasNext()) {
+			int score=iter2.next();
+			if(getRed().getScore()==score && !winners.contains(getRed())) {
+				winners.add(getRed());}
+			else if(getYellow().getScore()==score&& !winners.contains(getYellow()))
+				winners.add(getYellow());
+			else if(getBlue().getScore()==score&& !winners.contains(getBlue()))
+				winners.add(getBlue());
+			else if(getGreen().getScore()==score)
+				winners.add(getGreen());
+			else
+				System.out.println("this score is neither king's score");
+		}
+		if(ifTie()) {
+			String n=winnerTied();
+			if(!winners.get(0).getName().equals(n)) {
+				DominoSet temp=winners.get(0);
+				winners.set(0, winners.get(1));
+				winners.set(1, temp);
+			}	
+		}
+		
+		System.out.println("winners: ");
+		for(int i=0; i<winners.size(); i++)
+			System.out.println(winners.get(i).getName());
+		
+		return winners;
+	}
+	//return boolean whether the highest scores are tied
+	public boolean ifTie()
+	{
+		int a=scores.get(0);
+		int b=scores.get(1);
+		if(a==b)
+			return true;
+		return false;
+	}
+	//return the name of the king that won after a tie
+	public String winnerTied()
+	{
+		int a=0;
+		for(int[] set: winners.get(0).getProperties().values()) {
+			if(set[0]>a)
+				a=set[0];
+		}
+		
+		int b=0;
+		for(int[] set: winners.get(1).getProperties().values()) {
+			if(set[0]>b)
+				b=set[0];
+		}
+		
+		if(a>b)
+			return winners.get(0).getName();
+		return winners.get(1).getName();
+	}
+}

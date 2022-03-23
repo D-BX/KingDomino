@@ -1,0 +1,137 @@
+public String winner (ArrayList<Integer> scores )
+	{
+		
+		int rs = getRed().countScore();
+		int ys = getYellow().countScore();
+		int bs = getBlue().countScore();
+		int gs = getGreen().countScore();
+		int highest = Collections.max(scores);
+		int tie1;
+		int tie2;
+		int[] i;
+		if(rs!=ys && rs !=bs && rs != gs && ys != bs && ys != gs && bs != gs)
+		{
+			if(rs == highest)
+				return("Player Red Won!");
+			if(ys == highest)
+				return("Player Yellow Won!");
+			if(bs == highest)
+				return("Player Blue Won!");
+			if(gs == highest)
+				return("Player Green Won!");
+		}else if(rs == highest && ys == highest) // if red and yellow tied
+		{
+			Iterator<int[]> itr = getRed().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie1 = i[0];
+			
+			itr = getYellow().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie2 = i[0];
+			
+			if(tie1 > tie2)
+				return("Player Red won by Having the Highest Property!");
+			else
+				return("Player Yellow won by Having the Highest Property!");
+			
+		}else if(rs == highest && bs == highest) // if red and blue tied
+		{
+			Iterator<int[]> itr = getRed().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie1 = i[0];
+			
+			itr = getBlue().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie2 = i[0];
+			
+			if(tie1 > tie2)
+				return("Player Red won by Having the Highest Property!");
+			else
+				return("Player Blue won by Having the Highest Property!");
+			
+		}else if(rs == highest && gs == highest) // if red and green tied
+		{
+			Iterator<int[]> itr = getRed().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie1 = i[0];
+			
+			itr = getGreen().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie2 = i[0];
+			
+			if(tie1 > tie2)
+				return("Player Red won by Having the Highest Property!");
+			else
+				return("Player Green won by Having the Highest Property!");
+			
+		}else if(ys == highest && bs == highest) // if yellow and blue tied
+		{
+			Iterator<int[]> itr = getYellow().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie1 = i[0];
+			
+			itr = getBlue().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie2 = i[0];
+			
+			if(tie1 > tie2)
+				return("Player Yellow won by Having the Highest Property!");
+			else
+				return("Player Blue won by Having the Highest Property!");
+			
+		}else if(ys == highest && gs == highest) // if yellow and green tied
+		{
+			Iterator<int[]> itr = getYellow().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie1 = i[0];
+			
+			itr = getGreen().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie2 = i[0];
+			
+			if(tie1 > tie2)
+				return("Player Yellow won by Having the Highest Property!");
+			else
+				return("Player Green won by Having the Highest Property!");
+			
+		}else if(bs == highest && gs == highest) // if blue and green tied
+		{
+			Iterator<int[]> itr = getBlue().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie1 = i[0];
+			
+			itr = getGreen().properties.values().iterator();
+			
+			i = itr.next();
+			
+			tie2 = i[0];
+			
+			if(tie1 > tie2)
+				return("Player Blue won by Having the Highest Property!");
+			else
+				return("Player Green won by Having the Highest Property!");
+			
+		}
+	}

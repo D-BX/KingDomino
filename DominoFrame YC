@@ -1,0 +1,18 @@
+import java.awt.*;
+import javax.swing.*;
+
+public class DominoFrame extends JFrame {
+
+	private static final int WIDTH=1370;
+	private static final int HEIGHT=730;
+	
+	public DominoFrame(String title)
+	{
+		super(title);
+		setSize(WIDTH, HEIGHT);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		add(new DominoGraphics());
+		setVisible(true);
+	}
+	
+}

@@ -1,0 +1,190 @@
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.util.Scanner;
+import java.io.IOException;
+import java.io.File;
+
+public class Domino implements Comparable{
+
+	private int num;
+	private BufferedImage dom;
+	private BufferedImage domNum;
+	private BufferedImage orig;
+	private boolean homeTile;
+	private boolean kingTile;
+	private boolean dot;
+	private int rot;
+	private String name;
+	
+	public Domino(int n, BufferedImage a, BufferedImage b)
+	{
+		num=n;
+		dom=a;
+		domNum=b;orig=a;
+		homeTile=false;
+		dot=false;
+		rot=0;
+		kingTile=false;
+	}
+	//king tile, num=-1
+	public Domino(BufferedImage a, String s, String n)
+	{
+		dom=a;name=n;
+		if(s.equals("king")) 
+			kingTile=true;
+		else
+			dot=true;
+	}
+	
+	//home tile, num=0;
+	public Domino(BufferedImage a)
+	{
+		dom=a;
+		homeTile=true;
+		num=0;
+		kingTile=false;
+	}
+	public Domino() {}
+	public String getName()
+	{
+		return name;
+	}
+	public void rotate() {
+		double rads = Math.toRadians(90);
+		double sin = Math.abs(Math.sin(rads));
+		double cos = Math.abs(Math.cos(rads));
+		int w = (int) Math.floor(dom.getWidth() * cos + dom.getHeight() * sin);
+		int h = (int) Math.floor(dom.getHeight() * cos + dom.getWidth() * sin);
+		
+		BufferedImage rotatedImage = new BufferedImage(w, h, dom.getType());
+		AffineTransform at = new AffineTransform();
+		at.translate(w / 2, h / 2);
+		at.rotate(rads,0, 0);
+		at.translate(-dom.getWidth() / 2, -dom.getHeight() / 2);
+		AffineTransformOp rotateOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+		rotateOp.filter(dom,rotatedImage);
+		dom=rotatedImage;
+		
+		rotatedImage = new BufferedImage(w, h, domNum.getType());
+		at = new AffineTransform();
+		at.translate(w / 2, h / 2);
+		at.rotate(rads,0, 0);
+		at.translate(-domNum.getWidth() / 2, -domNum.getHeight() / 2);
+		rotateOp = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
+		rotateOp.filter(domNum,rotatedImage);
+		domNum=rotatedImage;
+		
+		rot+=90;
+		if(rot%360==0)
+		{
+			rot=0;
+		}
+		
+	}
+
+	public BufferedImage getOrig()
+	{
+		return orig;
+	}
+	
+	public int getNum()
+	{
+		return num;
+	}
+	
+	public BufferedImage getDomImg()
+	{
+		return dom;
+	}
+	public BufferedImage getNumImg()
+	{
+		return domNum;
+	}
+	@Override
+	public int compareTo(Object o) {
+		Domino d=(Domino)o;
+		if(getNum()<d.getNum())
+			return -1;
+		else if(getNum()>d.getNum()) {
+			return 1;
+		}
+		if(isHome())
+		{
+			if(d.isKing())
+				return -1;
+		}
+		if(isKing())
+		{
+			if(d.isHome())
+				return 1;
+		}
+		if(name!=null)
+		{
+			return name.compareTo(d.getName());
+		}
+		return 0;
+	}
+
+	public int getCrown(String type) throws IOException
+	{
+		Scanner sc=new Scanner(new File("Crowns.txt"));
+		while(sc.hasNextLine()) {
+			String[] str=sc.nextLine().split(" ");
+			if (str[0].equals(num))
+			{
+				if(type.contains(str[1]))
+					return Integer.parseInt(str[2]);
+			}	
+		}
+		return 0;
+	}
+	public String getLeft() throws IOException
+	{
+		Scanner sc=new Scanner(new File("Terrains.txt"));
+		while(sc.hasNextLine()) {
+			String[] str=sc.nextLine().split(" ");
+			if (Integer.parseInt(str[0])==num)
+			{
+				if(rot==0 || rot==90)
+					return str[1];
+				return str[2];
+			}	
+		}
+		return "Not Found";
+	}
+	public String getRight() throws IOException
+	{
+		Scanner sc=new Scanner(new File("Terrains.txt"));
+		while(sc.hasNextLine()) {
+			String[] str=sc.nextLine().split(" ");
+			if (Integer.parseInt(str[0])==num)
+			{
+				if(rot==0 || rot==90)
+					return str[2];
+				return str[1];
+			}	
+		}
+		return "Not Found";
+	}
+
+	public int getRot()
+	{
+		return rot;
+	}
+	public boolean isRot()
+	{
+		if(getRot()==0 || getRot()==180)
+			return false;
+		return true;
+	}
+	public boolean isHome()
+	{
+		return homeTile;
+	}
+	public boolean isKing()
+	{
+		return kingTile;
+	}
+	
+}

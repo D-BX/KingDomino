@@ -1,0 +1,167 @@
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+
+public class Graphics extends JPanel implements MouseListener{
+	private HashMap<String, BufferedImage> images;
+	private HashMap<Rectangle,String[]> HitBoxes;
+
+	public Graphics() {
+		addMouseListener(this);
+		images = new HashMap<String, BufferedImage>();
+		
+		//HitBoxes = new HashMap<Rectangle, String[]>();
+		
+		try {
+			images.put("Domino 1",ImageIO.read(Graphics.class.getResource("/images/D1.JPG")));
+			images.put("Domino 2",ImageIO.read(Graphics.class.getResource("/images/D2.JPG")));
+			images.put("Domino 3",ImageIO.read(Graphics.class.getResource("/images/D3.JPG")));
+			images.put("Domino 4",ImageIO.read(Graphics.class.getResource("/images/D4.JPG")));
+			images.put("Domino 5",ImageIO.read(Graphics.class.getResource("/images/D5.JPG")));
+			images.put("Domino 6",ImageIO.read(Graphics.class.getResource("/images/D6.JPG")));
+			images.put("Domino 7",ImageIO.read(Graphics.class.getResource("/images/D7.JPG")));
+			images.put("Domino 8",ImageIO.read(Graphics.class.getResource("/images/D8.JPG")));
+			images.put("Domino 9",ImageIO.read(Graphics.class.getResource("/images/D9.JPG")));
+			images.put("Domino 10",ImageIO.read(Graphics.class.getResource("/images/D10.JPG")));
+			images.put("Domino 11",ImageIO.read(Graphics.class.getResource("/images/D11.JPG")));
+			images.put("Domino 12",ImageIO.read(Graphics.class.getResource("/images/D12.JPG")));
+			images.put("Domino 13",ImageIO.read(Graphics.class.getResource("/images/D13.JPG")));
+			images.put("Domino 14",ImageIO.read(Graphics.class.getResource("/images/D14.JPG")));
+			images.put("Domino 15",ImageIO.read(Graphics.class.getResource("/images/D15.JPG")));
+			images.put("Domino 16",ImageIO.read(Graphics.class.getResource("/images/D16.JPG")));
+			images.put("Domino 17",ImageIO.read(Graphics.class.getResource("/images/D17.JPG")));
+			images.put("Domino 18",ImageIO.read(Graphics.class.getResource("/images/D18.JPG")));
+			images.put("Domino 19",ImageIO.read(Graphics.class.getResource("/images/D19.JPG")));
+			images.put("Domino 20",ImageIO.read(Graphics.class.getResource("/images/D20.JPG")));
+			images.put("Domino 21",ImageIO.read(Graphics.class.getResource("/images/D21.JPG")));
+			images.put("Domino 22",ImageIO.read(Graphics.class.getResource("/images/D22.JPG")));
+			images.put("Domino 23",ImageIO.read(Graphics.class.getResource("/images/D23.JPG")));
+			images.put("Domino 24",ImageIO.read(Graphics.class.getResource("/images/D24.JPG")));
+			images.put("Domino 25",ImageIO.read(Graphics.class.getResource("/images/D25.JPG")));
+			images.put("Domino 26",ImageIO.read(Graphics.class.getResource("/images/D26.JPG")));
+			images.put("Domino 27",ImageIO.read(Graphics.class.getResource("/images/D27.JPG")));
+			images.put("Domino 28",ImageIO.read(Graphics.class.getResource("/images/D28.JPG")));
+			images.put("Domino 29",ImageIO.read(Graphics.class.getResource("/images/D29.JPG")));
+			images.put("Domino 30",ImageIO.read(Graphics.class.getResource("/images/D30.JPG")));
+			images.put("Domino 31",ImageIO.read(Graphics.class.getResource("/images/D31.JPG")));
+			images.put("Domino 32",ImageIO.read(Graphics.class.getResource("/images/D32.JPG")));
+			images.put("Domino 33",ImageIO.read(Graphics.class.getResource("/images/D33.JPG")));
+			images.put("Domino 34",ImageIO.read(Graphics.class.getResource("/images/D34.JPG")));
+			images.put("Domino 35",ImageIO.read(Graphics.class.getResource("/images/D35.JPG")));
+			images.put("Domino 36",ImageIO.read(Graphics.class.getResource("/images/D36.JPG")));
+			images.put("Domino 37",ImageIO.read(Graphics.class.getResource("/images/D37.JPG")));
+			images.put("Domino 38",ImageIO.read(Graphics.class.getResource("/images/D38.JPG")));
+			images.put("Domino 39",ImageIO.read(Graphics.class.getResource("/images/D39.JPG")));
+			images.put("Domino 40",ImageIO.read(Graphics.class.getResource("/images/D40.JPG")));
+			images.put("Domino 41",ImageIO.read(Graphics.class.getResource("/images/D41.JPG")));
+			images.put("Domino 42",ImageIO.read(Graphics.class.getResource("/images/D42.JPG")));
+			images.put("Domino 43",ImageIO.read(Graphics.class.getResource("/images/D43.JPG")));
+			images.put("Domino 44",ImageIO.read(Graphics.class.getResource("/images/D44.JPG")));
+			images.put("Domino 45",ImageIO.read(Graphics.class.getResource("/images/D45.JPG")));
+			images.put("Domino 46",ImageIO.read(Graphics.class.getResource("/images/D46.JPG")));
+			images.put("Domino 47",ImageIO.read(Graphics.class.getResource("/images/D47.JPG")));
+			images.put("Domino 48",ImageIO.read(Graphics.class.getResource("/images/D48.JPG")));
+			images.put("CCRock-Desert",ImageIO.read(Graphics.class.getResource("/images/CCRock Desert.JPG")));
+			images.put("CDesert-Forest",ImageIO.read(Graphics.class.getResource("/images/CDesert Forest.JPG")));
+			images.put("CDesert-Grass",ImageIO.read(Graphics.class.getResource("/images/CDesert Grass.JPG")));
+			images.put("CDesert-Rock",ImageIO.read(Graphics.class.getResource("/images/CDesert Rock.JPG")));
+			images.put("CDesert-Water",ImageIO.read(Graphics.class.getResource("/images/CDesert Water.JPG")));
+			images.put("CForest-Desert",ImageIO.read(Graphics.class.getResource("/images/CForest Desert.JPG")));
+			images.put("CForest-Desert",ImageIO.read(Graphics.class.getResource("/images/CForest Desert.JPG")));
+			images.put("CForest-Desert",ImageIO.read(Graphics.class.getResource("/images/CForest Desert.JPG")));
+			images.put("CForest-Desert",ImageIO.read(Graphics.class.getResource("/images/CForest Desert.JPG")));
+			images.put("CForest-Grass",ImageIO.read(Graphics.class.getResource("/images/CForest Grass.JPG")));
+			images.put("CRock-Desert",ImageIO.read(Graphics.class.getResource("/images/CRock Desert.JPG")));
+			images.put("CWater-Desert",ImageIO.read(Graphics.class.getResource("/images/CWater Desert.JPG")));
+			images.put("CWater-Desert",ImageIO.read(Graphics.class.getResource("/images/CWater Desert.JPG")));
+			images.put("CWater-Forest",ImageIO.read(Graphics.class.getResource("/images/CWater Forest.JPG")));
+			images.put("CWater-Forest",ImageIO.read(Graphics.class.getResource("/images/CWater Forest.JPG")));
+			images.put("CWater-Forest",ImageIO.read(Graphics.class.getResource("/images/CWater Forest.JPG")));
+			images.put("CWater-Forest ",ImageIO.read(Graphics.class.getResource("/images/CWater Forest.JPG")));
+			images.put("Desert-CCGrass",ImageIO.read(Graphics.class.getResource("/images/Desert CCGrass.JPG")));
+			images.put("Desert-CCCRock",ImageIO.read(Graphics.class.getResource("/images/Desert CCCRock.JPG")));
+			images.put("Desert-CCSwamp",ImageIO.read(Graphics.class.getResource("/images/Desert CCSwamp.JPG")));
+			images.put("Desert-CGrass",ImageIO.read(Graphics.class.getResource("/images/Desert CGrass.JPG")));
+			images.put("Desert-CSwamp",ImageIO.read(Graphics.class.getResource("/images/Desert CSwamp.JPG")));
+			images.put("Desert-Desert",ImageIO.read(Graphics.class.getResource("/images/Desert Desert.JPG")));
+			images.put("Desert-Desert",ImageIO.read(Graphics.class.getResource("/images/Desert Desert.JPG")));
+			images.put("Desert-Forest",ImageIO.read(Graphics.class.getResource("/images/Desert Forest.JPG")));
+			images.put("Desert-Grass",ImageIO.read(Graphics.class.getResource("/images/Desert Grass.JPG")));
+			images.put("Desert-Swamp",ImageIO.read(Graphics.class.getResource("/images/Desert Swamp.JPG")));
+			images.put("Desert-Water",ImageIO.read(Graphics.class.getResource("/images/Desert Water.JPG")));
+			images.put("Forest-Forest",ImageIO.read(Graphics.class.getResource("/images/Forest Forest.JPG")));
+			images.put("Forest-Forest",ImageIO.read(Graphics.class.getResource("/images/Forest Forest.JPG")));
+			images.put("Forest-Forest",ImageIO.read(Graphics.class.getResource("/images/Forest Forest.JPG")));
+			images.put("Forest-Forest",ImageIO.read(Graphics.class.getResource("/images/Forest Forest.JPG")));
+			images.put("Forest-Grass",ImageIO.read(Graphics.class.getResource("/images/Forest Grass.JPG")));
+			images.put("Forest-Water",ImageIO.read(Graphics.class.getResource("/images/Forest Water.JPG")));
+			images.put("Grass-Grass",ImageIO.read(Graphics.class.getResource("/images/Grass Grass.JPG")));
+			images.put("Grass-Grass",ImageIO.read(Graphics.class.getResource("/images/Grass Grass.JPG")));
+			images.put("Grass-CSwamp",ImageIO.read(Graphics.class.getResource("/images/Grass CSwamp.JPG")));
+			images.put("Grass-CCSwamp",ImageIO.read(Graphics.class.getResource("/images/Grass CCSwamp.JPG")));
+			images.put("Swamp-CCRock",ImageIO.read(Graphics.class.getResource("/images/Swamp CCRock.JPG")));
+			images.put("Swamp-Swamp",ImageIO.read(Graphics.class.getResource("/images/Swamp Swamp.JPG")));
+			images.put("Water-CCGrass",ImageIO.read(Graphics.class.getResource("/images/Water CCGrass.JPG")));
+			images.put("Water-CGrass",ImageIO.read(Graphics.class.getResource("/images/Water CGrasst.JPG")));
+			images.put("Water-Water",ImageIO.read(Graphics.class.getResource("/images/Water Water.JPG")));
+			images.put("Water-Water",ImageIO.read(Graphics.class.getResource("/images/Water Water.JPG")));
+			images.put("Water-Water",ImageIO.read(Graphics.class.getResource("/images/Water Water.JPG")));
+			images.put("Blue King",ImageIO.read(Graphics.class.getResource("/images/Blue King.png")));
+			images.put("Yellow King",ImageIO.read(Graphics.class.getResource("/images/Yellow King.png")));
+			images.put("Red King",ImageIO.read(Graphics.class.getResource("/images/Red King.png")));
+			images.put("Green King",ImageIO.read(Graphics.class.getResource("/images/Green King.png")));
+			images.put("Home",ImageIO.read(Graphics.class.getResource("/images/Home Bot.JPG")));
+
+
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

@@ -1,0 +1,47 @@
+	public ArrayList<Domino> connected(Domino D, Point P) throws IOException
+	{
+		ArrayList<Domino> list = new ArrayList<Domino>();
+			if(D.isRot()==false)
+			{
+		        for(Domino d: coordinates.keySet())
+		        {
+		        	Point pt = coordinates.get(d);
+		        	if(pt.getX()==P.getX()-getHeight()*2/9&&pt.getY()==P.getY())
+		        		list.add(d);//check left
+		        	if(pt.getX()==P.getX()+getHeight()*2/9&&pt.getY()==P.getY())
+		        		list.add(d);// check right
+		        	if(pt.getX()==P.getX()&&pt.getY()==P.getY()+getHeight()/9)
+		        		list.add(d);//check up
+		        	if(pt.getX()+getHeight()/9==P.getX()&&pt.getY()==P.getY()-getHeight()/9&&d.isRot())
+		        		list.add(d);// check up rot
+		        	if(pt.getX()==P.getX()&&pt.getY()==P.getY()+getHeight()/9)
+		        		list.add(d);// check down
+		        	if(pt.getX()+getHeight()/9==P.getX()&&pt.getY()==P.getY()-getHeight()/9&&d.isRot())
+		        		list.add(d);// check down rot
+		        }
+			}
+			else
+			{
+				for(Domino d: coordinates.keySet())
+				{
+		        	Point pt = coordinates.get(d);
+		        	if(pt.getX()==P.getX()-getHeight()*2/9&&pt.getY()==P.getY())
+		        		list.add(d);// check left
+		        	if(pt.getX()==P.getX()-getHeight()*2/9&&pt.getY()==P.getY()-getHeight()/9)
+		        		list.add(d);// check bot left
+		        	if(pt.getX()==P.getX()-getHeight()/9&&pt.getY()==P.getY()-getHeight()/9&&d.isRot())
+		        		list.add(d);// check rot left
+		        	if(pt.getX()==P.getX()+getHeight()*2/9&&pt.getY()==P.getY())
+		        		list.add(d);// check right
+		        	if(pt.getX()==P.getX()+getHeight()*2/9&&pt.getY()==P.getY()-getHeight()/9)
+		        		list.add(d);// check bot right
+		        	if(pt.getX()==P.getX()+getHeight()/9&&pt.getY()==P.getY()-getHeight()/9&&d.isRot())
+		        		list.add(d);// check rot right
+		        	if(pt.getX()==P.getX()&&pt.getY()==P.getY()+getHeight()*2/9)
+		        		list.add(d);// check top
+		        	if(pt.getX()==P.getX()&&pt.getY()==P.getY()+getHeight()*2/9)
+		        		list.add(d);// check bot
+				}
+			}
+		return list;
+	}

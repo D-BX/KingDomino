@@ -1,0 +1,30 @@
+public String winner(ArrayList<Integer> scores)
+	{
+		int high = 0;
+		boolean tie = false;
+		Collections.sort(scores);
+		Collections.reverse(scores);
+		high = scores.get(scores.size()-1);
+		if(high == scores.get(scores.size()-2))
+			tie = true;
+		if(tie== false)
+		{
+			if(getRed().countScore()==high)
+				return("Red Won by the highest score!");
+			if(getYellow().countScore()==high)
+				return("Yellow Won by the highest score!");
+			if(getBlue().countScore()==high)
+				return("Blue Won by the highest score!");
+			if(getGreen().countScore()==high)
+				return("Green Won by the highest score!");
+		}
+	}
+public int countScore()
+	{
+		int total = 0;
+		for(String d : properties.keySet())
+		{
+			//Adam- I dont understand how to properly iteraty through the map and add everything
+		}
+		return total;
+	}

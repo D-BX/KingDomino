@@ -1,0 +1,2486 @@
+import java.awt.*;
+import java.awt.image.*;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+
+import java.io.*;
+import java.awt.event.MouseListener;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.*;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class DominoGraphics extends JPanel implements MouseListener, KeyListener{
+	private Domino selectedDom;
+	//private TreeMap<Point, int[]> rect;
+	private ArrayList<Point> rectPt;
+	private ArrayList<int[]> rectVal;
+	private TreeMap <Domino, Point> Red;
+	private TreeMap <Domino, Point> Yellow;
+	private TreeMap <Domino, Point> Blue;
+	private TreeMap <Domino, Point> Green;
+	private TreeMap <Domino, Point> currentKing;
+	private String crKing;
+	private String result;
+	private TreeMap<Domino, String> plDom;
+	private TreeMap<Domino, String> plDom2;
+	private TreeMap <Domino, Point> displayDom;
+	private TreeMap <Domino, Point> displayDom2;
+	//in the order of blue, green, red, yellow
+	private TreeMap <Domino, Point> dots;
+	private Boolean textBox=true;
+	private Boolean numSide=true;
+	private Boolean numSide2=true;
+	private boolean finished=false;
+	private boolean selected=false;
+	private int choice;
+	private int cnt=0;
+	private Game game;
+	private int width=1370;
+	private int height=730;
+	private ArrayList<DominoSet> players;
+	private boolean cover=true;
+	
+
+	public DominoGraphics()
+	{
+		basics();
+		
+		addKeyListener(this);
+		addMouseListener(this);
+	}
+	
+	//add home tiles and king to maps, add dots to map
+	public void basics()
+	{
+		Red=new TreeMap<>();
+		Yellow=new TreeMap<>();
+		Blue=new TreeMap<>();
+		Green=new TreeMap<>();
+		displayDom=new TreeMap<>();
+		displayDom2=new TreeMap<>();
+		dots=new TreeMap<>();
+		plDom=new TreeMap<>();
+		plDom2=new TreeMap<>();
+		currentKing=Red;
+		crKing="red";
+		result="";
+		choice=7;
+		rectPt=new ArrayList<>();
+		rectVal=new ArrayList<>();
+		players=new ArrayList<>();
+		try{game=new Game();}
+		catch(IOException E) {}
+		TreeSet<Domino> set=game.get4Dom();
+		setDisplayDom(set);
+		cover=true;
+		
+		try
+		{
+			
+			
+			BufferedImage red= ImageIO.read(DominoGraphics.class.getResource("/imgs/RedKing.png"));
+			Domino r=new Domino(red, "king", "red");
+			BufferedImage yellow= ImageIO.read(DominoGraphics.class.getResource("/imgs/YellowKing.png"));
+			Domino y=new Domino(yellow, "king", "yellow");
+			BufferedImage blue= ImageIO.read(DominoGraphics.class.getResource("/imgs/BlueKing.png"));
+			Domino b=new Domino(blue, "king", "blue");
+			BufferedImage green= ImageIO.read(DominoGraphics.class.getResource("/imgs/GreenKing.png"));
+			Domino g=new Domino(green, "king", "green");
+			BufferedImage home= ImageIO.read(DominoGraphics.class.getResource("/imgs/Home.jpg"));
+			Domino h=new Domino(home);
+			Red.put(r, new Point(height*3/5-height/9+2,height/2-height/9+2));
+			Red.put(h, new Point(height*3/5-height/9, height/2-height/9));
+			//game.getRed().setCoordinates(Red);
+			//game.getRed().addSize(new Point((int)height*3/5-height/9, (int)height/2-height/9), new Point((int)height*3/5, (int)height/2));
+			
+			Yellow.put(y, new Point(height*3/5-height/9+2,height/2-height/9+2));
+			Yellow.put(h, new Point(height*3/5-height/9, height/2-height/9));
+			//game.getYellow().setCoordinates(Yellow);
+			//game.getYellow().addSize(new Point((int)height*3/5-height/9, (int)height/2-height/9), new Point((int)height*3/5, (int)height/2));
+					
+			Blue.put(b, new Point(height*3/5-height/9+2,height/2-height/9+2));
+			Blue.put(h, new Point(height*3/5-height/9, height/2-height/9));
+			//game.getBlue().setCoordinates(Blue);
+			//game.getBlue().addSize(new Point((int)height*3/5-height/9, (int)height/2-height/9), new Point((int)height*3/5, (int)height/2));
+			
+			Green.put(g, new Point(height*3/5-height/9+2,height/2-height/9+2));
+			Green.put(h, new Point(height*3/5-height/9, height/2-height/9));
+			//game.getGreen().setCoordinates(Green);
+			//game.getGreen().addSize(new Point((int)height*3/5-height/9, (int)height/2-height/9), new Point((int)height*3/5, (int)height/2));
+			
+			Iterator<Domino> iter=displayDom.keySet().iterator();
+			BufferedImage a=ImageIO.read(DominoGraphics.class.getResource("/imgs/redDot.png"));
+			Domino d=new Domino(a, "dot", "red");
+			Point p=displayDom.get(iter.next());
+			Point x=new Point((int)p.getX()-50, (int)p.getY());
+			dots.put(d, x);
+			
+			a=ImageIO.read(DominoGraphics.class.getResource("/imgs/yellowDot.png"));
+			d=new Domino(a, "dot", "yellow");
+			p=displayDom.get(iter.next());
+			x=new Point((int)p.getX()-50, (int)p.getY());
+			dots.put(d, x);
+			
+			a=ImageIO.read(DominoGraphics.class.getResource("/imgs/blueDot.png"));
+			d=new Domino(a, "dot", "blue");
+			p=displayDom.get(iter.next());
+			x=new Point((int)p.getX()-50, (int)p.getY());
+			dots.put(d, x);
+			
+			a=ImageIO.read(DominoGraphics.class.getResource("/imgs/greenDot.png"));
+			d=new Domino(a, "dot", "green");
+			p=displayDom.get(iter.next());
+			x=new Point((int)p.getX()-50, (int)p.getY());
+			dots.put(d, x);
+			shuffle();
+		}
+		catch (Exception E) {}
+	}
+	//shuffle dots
+	public void shuffle()
+	{
+		Collection<Point> points=dots.values();
+		ArrayList<Point> pts=new ArrayList<>();
+		for(Point pp: points) {
+			pts.add(pp);
+		}
+		Collections.shuffle(pts);
+		Iterator<Point> iter=pts.iterator();
+		for(Domino d:dots.keySet()) {
+			dots.replace(d, dots.get(d), iter.next());
+		}
+	}
+	
+
+	
+	public void paint(Graphics g)
+	{
+		g.clearRect(0, 0, getWidth(), getHeight());
+		
+		
+		if(crKing.equals("red"))
+			g.setColor(Color.red);
+		else if(crKing.equals("yellow"))
+			g.setColor(Color.yellow);
+		else if(crKing.equals("blue"))
+			g.setColor(Color.blue);
+		else	
+			g.setColor(Color.green);
+		g.drawRect(6, 6, getHeight()*6/5-2, getHeight()-10-2);
+		g.drawRect(5, 5, getHeight()*6/5, getHeight()-10);
+		g.drawRect(4, 4, getHeight()*6/5+2, getHeight()-10+2);
+		
+		if(players==null || players.size()==0)
+			g.drawRect(getWidth()-getHeight()/3, getHeight()*2/3, getHeight()/3, getHeight()/3);
+		
+		//draw out dominoes in column
+		if(displayDom!=null)
+		{
+			for(Domino d: displayDom.keySet()) {
+				Point p=displayDom.get(d);
+				if(numSide)
+					g.drawImage(d.getNumImg(), (int)p.getX(), (int)p.getY(), getHeight()/5, getHeight()/10, null);
+				else
+				{
+					g.drawImage(d.getOrig(), (int)p.getX(), (int)p.getY(), getHeight()/5, getHeight()/10, null);
+				}
+					
+			}
+		}
+		if(displayDom2!=null)
+		{
+			for(Domino d: displayDom2.keySet()) {
+				Point p=displayDom2.get(d);
+				if(numSide2)
+					g.drawImage(d.getNumImg(), (int)p.getX(), (int)p.getY(), getHeight()/5, getHeight()/10, null);
+				else
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/5, getHeight()/10, null);
+			}
+		}
+		if(dots.size()!=0)
+		{
+			for(Domino d: dots.keySet()) {
+				Point p=dots.get(d);
+				g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), 20, 20, null);
+			}
+		}
+		//highlight the selectedDom outline
+		if(cnt>4) {
+			if(selectedDom!=null) {
+				String c=crKing;
+				if(c.equals("red"))
+					g.setColor(Color.red);
+				else if(c.equals("yellow"))
+					g.setColor(Color.yellow);
+				else if(c.equals("blue"))
+					g.setColor(Color.blue);
+				else	
+					g.setColor(Color.green);
+			
+			Point p=new Point();
+			for(Domino d:displayDom.keySet()) {
+				if(d.equals(selectedDom))
+					p=displayDom.get(d);
+			}
+			g.drawRect((int)p.getX(), (int)p.getY(), getHeight()/5, getHeight()/10);
+			g.drawRect((int)p.getX()-1, (int)p.getY()-1, getHeight()/5+2, getHeight()/10+2);
+			g.drawRect((int)p.getX()-2, (int)p.getY()-2, getHeight()/5+4, getHeight()/10+4);
+			g.drawRect((int)p.getX()-3, (int)p.getY()-3, getHeight()/5+6, getHeight()/10+6);
+		
+			g.drawRect(getWidth()-getHeight()/3, getHeight()*2/3, getHeight()/3, getHeight()/3);
+			g.drawRect(getWidth()-getHeight()/3-1, getHeight()*2/3-1, getHeight()/3+2, getHeight()/3+2);
+			g.drawRect(getWidth()-getHeight()/3-2, getHeight()*2/3-2, getHeight()/3+4, getHeight()/3+4);
+			g.drawRect(getWidth()-getHeight()/3-3, getHeight()*2/3-3, getHeight()/3+6, getHeight()/3+6);
+		
+			g.setColor(Color.black);
+		}}
+		
+		if(choice==7)
+		{
+			//System.out.println("choice 7 called in paint");
+			for(Domino d:Red.keySet()) {
+				Point p=Red.get(d);
+				if(d.isHome())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()/9, null);
+				else if(d.isKing())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9-5, getHeight()/9-5, null);
+				else if(d.getRot()==0 || d.getRot()==180)
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()*2/9, getHeight()/9, null);
+				else
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()*2/9, null);
+			}
+		}
+		else if(choice==8)
+		{
+			//System.out.println("choice 8 called in paint");
+			for(Domino d:Yellow.keySet()) {
+				Point p=Yellow.get(d);
+				if(d.isHome())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()/9, null);
+				else if(d.isKing())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9-5, getHeight()/9-5, null);
+				else if(d.getRot()==0 || d.getRot()==180)
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()*2/9, getHeight()/9, null);
+				else
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()*2/9, null);
+			}
+		}
+		else if(choice==9)
+		{
+			//System.out.println("choice 9 called in paint");
+			for(Domino d:Blue.keySet()) {
+				Point p=Blue.get(d);
+				if(d.isHome())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()/9, null);
+				else if(d.isKing())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9-5, getHeight()/9-5, null);
+				else if(d.getRot()==0 || d.getRot()==180)
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()*2/9, getHeight()/9, null);
+				else
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()*2/9, null);
+			}
+		}
+		else if(choice==0)
+		{
+			//System.out.println("choice 0 called in paint");
+			for(Domino d:Green.keySet()) {
+				Point p=Green.get(d);
+				if(d.isHome())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()/9, null);
+				else if(d.isKing())
+					g.drawImage(d.getDomImg(), (int)p.getX(), (int)p.getY(), getHeight()/9-5, getHeight()/9-5, null);
+				else if(d.getRot()==0 || d.getRot()==180)
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()*2/9, getHeight()/9, null);
+				else
+					g.drawImage(d.getDomImg(),(int)p.getX(), (int)p.getY(), getHeight()/9, getHeight()*2/9, null);
+			}
+		}
+		
+		//draw dom on lower right corner
+		if(selectedDom!=null && cnt>=4)
+		{
+			if(selectedDom.getRot()==0 || selectedDom.getRot()==180)
+				g.drawImage(selectedDom.getDomImg(),getWidth()-getHeight()/3+10, getHeight()*2/3+75, getHeight()/3-20, getHeight()/6, null);
+			else
+				g.drawImage(selectedDom.getDomImg(),getWidth()-getHeight()/3+75, getHeight()*2/3+10, getHeight()/6, getHeight()/3-20, null);
+		}
+		
+		//draw out rectangles
+		if(rectPt!=null && rectVal!=null && thisKing(crKing, choice) && selected) {
+			for(int i=0; i<rectPt.size(); i++) {
+				Point p=rectPt.get(i);
+				int[] size=rectVal.get(i);
+				g.drawRect((int)p.getX(), (int)p.getY(), size[0], size[1]);
+			}
+		}	
+		
+		//restart
+				g.setColor(Color.LIGHT_GRAY);
+				g.fillRect(getHeight()*6/5+30, getHeight()*5/6, 100, 30);
+				g.setColor(Color.black);
+				g.drawString("RESTART", getHeight()*6/5+50, getHeight()*5/6+20);
+		
+		//tile count down
+		if(!finished&& displayDom.size()!=0) {
+		g.drawRect(getHeight()*6/5+50, getHeight()*2/3+30, getHeight()/5, getHeight()/11);
+		g.drawString("Dominoes Remaining", getHeight()*6/5+60, getHeight()*2/3+20);
+		g.setFont(g.getFont().deriveFont(g.getFont().getSize()*3F));
+		g.drawString(""+game.remaining(), getHeight()*6/5+100, getHeight()*2/3+70);
+		g.setFont(g.getFont().deriveFont(g.getFont().getSize()/3F));}
+				
+		if(textBox)
+		{
+			g.clearRect(0,0,getWidth(), getHeight());
+			
+			g.setColor(Color.LIGHT_GRAY);
+			g.fillRect(getWidth()/5, getHeight()/4, getWidth()/5*3+20, getHeight()/2);
+			g.setColor(Color.black);
+			g.setFont(g.getFont().deriveFont(g.getFont().getSize()*3F));
+			g.drawString("INSTRUCTIONS", getWidth()/5*2,getHeight()/4-20);
+			g.setFont(g.getFont().deriveFont(g.getFont().getSize()/2F));
+			if(!finished) {
+			g.drawString("Type space to flip the dominoes over.", getWidth()/7*2,getHeight()/16*5);
+			g.drawString("Type 1, 2, 3, 4 to select domino.", getWidth()/7*2,getHeight()/16*6);
+			g.drawString("Type 7, 8, 9, 0 to check other kingdoms.", getWidth()/7*2,getHeight()/16*7);
+			g.drawString("Type \"r\" to rotate the selected domino.", getWidth()/7*2,getHeight()/16*8);
+			g.drawString("Click on one of the rectangles to place the domino.",getWidth()/7*2, getHeight()/16*9);
+			g.drawString("Rectangles may overlap; click on the left half of horizontal rectangle or top half of vertical.",getWidth()/7*2, getHeight()/16*10);
+			g.drawString("Type \"d\" to discard the domino, it works only when it's not playable.",getWidth()/7*2, getHeight()/16*11);
+			g.drawString("Type \"h\" to come back to this page. \t\t Type \"Enter\" to go back to the game.", getWidth()/7*2,getHeight()/16*12);
+			}
+			else if(players.size()==0){
+				g.drawString("for these last four dominoes", getWidth()/7*2,getHeight()/16*5);
+				g.drawString("No domino need to be selected", getWidth()/7*2,getHeight()/16*6);
+				g.drawString("Just click on the boxes to place the domino", getWidth()/7*2,getHeight()/16*7);
+				g.drawString("Type \"h\" to come back to this page.", getWidth()/7*2,getHeight()/16*8);
+				g.drawString("Type \\\"Enter\\\" to go back to the game.",getWidth()/7*2, getHeight()/16*9);
+			}
+			else {
+				g.drawString("Type 7, 8, 9, 0 to check other kingdoms.", getWidth()/7*2,getHeight()/16*5);
+				g.drawString("Click on \"restart\" to begin a new game.", getWidth()/7*2,getHeight()/16*6);
+				g.drawString("Type \"h\" to come back to this page.", getWidth()/7*2,getHeight()/16*7);
+				g.drawString("Type \\\"Enter\\\" to go back to the game.",getWidth()/7*2, getHeight()/16*8);
+			}
+		}
+		if(players.size()!=0) {
+			int index=0;
+			
+			ArrayList<Integer> y=new ArrayList<>();
+			for(Point p: dots.values()) {
+				y.add((int)p.getY());
+			}
+			Collections.sort(y);
+			Point[] pts=new Point[4];
+			for(Point p: dots.values()) {
+				for(int i=0; i<y.size(); i++) {
+					if(p.getY()==y.get(i))
+						pts[i]=new Point((int)p.getX(), y.get(i));
+				}
+			}
+			for(Point p: pts) {
+				int cnt=0;
+				
+				g.drawString("Scored "+players.get(index).getScore(), (int)p.getX()+50, (int)p.getY()+20);
+				
+				if(players.get(index).harmony()) {
+					g.drawString("harmony bonus +5", getHeight()*7/5, (int)p.getY()+20);
+					if(players.get(index).middleKingdom())
+						g.drawString("middle kingdom bonus +10", getHeight()*8/5, (int)p.getY()+20);
+					else
+						g.drawString("middle kingdom bonus +0",getHeight()*8/5, (int)p.getY()+20);}
+				else
+				{
+					g.drawString("harmony bonus +0", getHeight()*7/5, (int)p.getY()+20);
+					if(players.get(index).middleKingdom())
+						g.drawString("middle kingdom bonus +10", getHeight()*8/5, (int)p.getY()+20);
+					else
+						g.drawString("middle kingdom bonus +0", getHeight()*8/5, (int)p.getY()+20);
+				}
+				
+				TreeMap<String, ArrayList<Integer>> map=players.get(index).terrainScores();
+				for(String s: map.keySet()) {
+					ArrayList<Integer> list=map.get(s);
+					
+					if(cnt%2==0)
+						g.drawString(s+": "+list, (int)p.getX()+50, (int)p.getY()+40+15*(cnt+1));
+					else
+						g.drawString(s+": "+list, (int)p.getX()+150, (int)p.getY()+40+15*(cnt));
+					cnt++;
+				}
+				index++;
+			}
+			g.setFont(g.getFont().deriveFont(g.getFont().getSize()*2F));
+			if(!game.ifTie()) {
+				g.drawString("Player "+players.get(0).getName()+" Won !", getHeight()*7/5+50, getHeight()*5/6);
+			}
+			else {
+				g.drawString("Player "+game.winnerTied()+" Won !", getHeight()*7/5+50, getHeight()*5/6);
+			}
+			
+		}
+
+		BufferedImage cv;
+		if(cover) {
+			try {
+				cv=ImageIO.read(DominoGraphics.class.getResource("/imgs/KingDomino_Cover.png"));
+				g.drawImage(cv, 20,0,getWidth()-40, getHeight(), null);
+			}
+			catch(IOException E) {}
+				
+				cover=false;
+			
+		}
+	}
+
+	public boolean thisKing(String name, int num)
+	{
+		if(name.equals("red")) {
+			if(num!=7)
+				return false;
+		}
+		if(name.equals("yellow")) {
+			if(num!=8)
+				return false;
+		}
+		if(name.equals("blue")) {
+			if(num!=9)
+				return false;
+		}
+		if(name.equals("green")) {
+			if(num!=0)
+				return false;
+		}
+		return true;
+	}
+	
+	public void storeRect() throws IOException
+	{
+		//rect.clear();
+		rectPt.clear();
+		rectVal.clear();
+		DominoSet set;
+		
+		ArrayList<Domino> matchable=new ArrayList<>();
+		ArrayList<Point[]> points=new ArrayList<>();
+		if(crKing.equals("red")) {
+			game.getRed().setCoordinates(currentKing);
+			matchable=game.getRed().getMatchableDom(selectedDom);
+			points=game.getRed().getSize();
+			set=game.getRed();}
+		else if(crKing.equals("yellow")) {
+			game.getYellow().setCoordinates(currentKing);
+			matchable=game.getYellow().getMatchableDom(selectedDom);
+			points=game.getYellow().getSize();
+			set=game.getYellow();}
+		else if(crKing.equals("blue")) {
+			game.getBlue().setCoordinates(currentKing);
+			matchable=game.getBlue().getMatchableDom(selectedDom);
+			points=game.getBlue().getSize();
+			set=game.getBlue();}
+		else{
+			game.getGreen().setCoordinates(currentKing);
+			matchable=game.getGreen().getMatchableDom(selectedDom);
+			points=game.getGreen().getSize();
+			set=game.getGreen();}
+		
+		Iterator<Domino> iter=matchable.iterator();
+		while(iter.hasNext()) {
+			Domino d=iter.next();
+			System.out.println("the domino number now is "+d.getNum());
+			Point pt=currentKing.get(d);
+			//if domino in the kingdom is horizontal
+			if(!d.isRot())
+			{
+				//System.out.println("kingdom domino is horizontal");
+				//System.out.println("home tile: "+currentKing.get(d)+currentKing.get(d).getX()+getHeight()/9);
+				//if selected domino is horizontal
+				if(!selectedDom.isRot())
+				{
+					//System.out.println("selectedDom is horizontal");
+					//if they match on the left side
+					if(d.getLeft().equals(selectedDom.getLeft()) || d.getRight().equals(selectedDom.getRight()) ||d.isHome())
+					{
+						System.out.println("Calling straightHoriz up");
+						if(straightHoriz(points, d, "up")){
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()-getHeight()/9);
+							int[] a= {(int)getHeight()*2/9, (int)getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+								rectPt.add(temp);
+								rectVal.add(a);
+								//rect.put(temp, a);
+								//System.out.println("l l"+temp);}
+						}}
+						System.out.println("Calling straightHoriz down");
+						if(straightHoriz(points, d, "down")){
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l l"+temp);}
+						}}
+					}
+					if(d.getLeft().equals(selectedDom.getRight())||d.isHome()) {
+						System.out.println("Calling leftRight up");
+						if(leftRight(points, d, "up")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l R"+temp);}
+						}}
+						System.out.println("Calling leftRight down");
+						if(leftRight(points, d, "down")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l R"+temp);}
+						}}
+						System.out.println("Calling straightHoriz left");
+						if(straightHoriz(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()*2/9, (int)pt.getY());
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l R"+temp);}
+						}}
+					}
+					if(d.getRight().equals(selectedDom.getLeft()) && !d.isHome()) {
+						System.out.println("Calling rightLeft up");
+						if(rightLeft(points, d, "up")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("R l"+temp);}
+						}}
+						System.out.println("Calling rightLeft down");
+						if(rightLeft(points, d, "down")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("R l"+temp);}
+						}}
+						System.out.println("Calling straightHoriz right");
+						if(straightHoriz(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()*2/9, (int)pt.getY());
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("R l"+temp);}
+						}}
+					}
+					System.out.println("Calling straightHoriz right for home tile");
+					if(straightHoriz(points, d, "right") && d.isHome()) {
+						Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY());
+						int[] a= {getHeight()*2/9, getHeight()/9};
+						System.out.println("no domino in the way");
+						if(!set.ifExceed(temp, true)) {
+							System.out.println("Didnt exceed");
+						rectPt.add(temp);
+						rectVal.add(a);
+						//rect.put(temp, a);
+						//System.out.println("R"+temp);
+					}}
+				}
+				else if(selectedDom.isRot())
+				{
+					if(d.getLeft().equals(selectedDom.getLeft())||d.isHome())
+					{
+						System.out.println("Calling leftVert down");
+						if(leftVert(points, d, "down")) {
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()+getHeight()/9);
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l lr"+temp);}
+						}}
+						System.out.println("Calling leftVert left");
+						if(leftVert(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY());
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l lr"+temp);
+						}}
+					}
+					if(d.getRight().equals(selectedDom.getRight()) && !d.isHome())
+					{
+						System.out.println("Calling rightVert up");
+						if(rightVert(points, d, "up")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()-getHeight()*2/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("R Rr"+temp);
+						}}
+						System.out.println("Calling rightVert right");
+						if(rightVert(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()*2/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("R Rr"+temp);}
+						}}
+					}
+					if(d.getRight().equals(selectedDom.getLeft()) && !d.isHome()) {
+						System.out.println("Calling rightleftVert down");
+						if(rightLeftVert(points, d, "down")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("R lr"+temp);}
+						}}
+						System.out.println("Calling rightleftVert right");
+						if(rightLeftVert(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()*2/9, (int)pt.getY());
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("R lr"+temp);}
+						}}
+					}
+					
+					
+					////////
+					if(d.getLeft().equals(selectedDom.getRight())||d.isHome()) {
+						System.out.println("Calling leftRightVert up");
+						if(leftRightVert(points, d, "up")) {
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()-getHeight()*2/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l Rr"+temp);
+						}}
+						System.out.println("Calling leftRightVert left");
+						if(leftRightVert(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+							//System.out.println("l Rr"+temp);}
+						}}
+					}
+					if(d.isHome())
+					{
+						System.out.println("Calling rightVert right");
+						if(rightVert(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//System.out.println("home r"+temp);}
+						}}
+						System.out.println("Calling rightleftVert right");
+						if(rightLeftVert(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY());
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//System.out.println("home r"+temp);}
+						}}
+					}
+				}
+			}
+			//if matchable domino is vertical
+			else {
+				
+				//System.out.println("matchable domino is vertical");
+				//if selected domino is horizontal
+				if(selectedDom.getRot()==0 || selectedDom.getRot()==180)
+				{
+					//if they match on the left side
+					if(d.getLeft().equals(selectedDom.getLeft()))
+					{
+						System.out.println("Calling leftVertL up");
+						if(leftVertL(points, d, "up")){
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);
+							//rect.put(temp, a);
+						}}
+						System.out.println("Calling leftVertL right");
+						if(leftVertL(points, d, "right")){
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY());
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+					}
+					if(d.getLeft().equals(selectedDom.getRight())) {
+						System.out.println("Calling leftVertR up");
+						if(leftVertR(points, d, "up")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling leftVertR left");
+						if(leftVertR(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()*2/9, (int)pt.getY());
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+					}
+					if(d.getRight().equals(selectedDom.getLeft())) {
+						System.out.println("Calling rightVertL down");
+						if(rightVertL(points, d, "down")) {
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()+getHeight()*2/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling rightVertL right");
+						if(rightVertL(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+					}
+					if(d.getRight().equals(selectedDom.getRight())) {
+						System.out.println("Calling rightVertR left");
+						if(rightVertR(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()*2/9, (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling rightVertR down");
+						if(rightVertR(points, d, "down")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY()+getHeight()*2/9);
+							int[] a= {getHeight()*2/9, getHeight()/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, true)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+					}
+				}
+				else if(selectedDom.getRot()==90 || selectedDom.getRot()==270)
+				{
+					System.out.println("right side of d: "+d.getRight());
+					System.out.println("left side of selectedDom: "+d.getLeft());
+					if(d.getLeft().equals(selectedDom.getLeft()) || d.getRight().equals(selectedDom.getRight()))
+					{
+						System.out.println("Calling leftVV right");
+						if(leftVV(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY());		
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling leftVV left");
+						if(leftVV(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY());
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+					}
+					
+					if(d.getRight().equals(selectedDom.getLeft())) {
+						System.out.println("Calling rightVLV left");
+						if(rightVLV(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling rightVLV down");
+						if(rightVLV(points, d, "down")) {
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()+getHeight()*2/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling rightVLV right");
+						if(rightVLV(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()+getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+					}
+					 if(d.getLeft().equals(selectedDom.getRight())) {
+						System.out.println("Calling rightLeftVert up");
+						if(rightLeftVert(points, d, "up")) {
+							Point temp=new Point((int)pt.getX(), (int)pt.getY()-getHeight()*2/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling leftVLV left");
+						if(leftVRV(points, d, "left")) {
+							Point temp=new Point((int)pt.getX()-getHeight()/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println("Calling leftVLV right");
+						if(leftVRV(points, d, "right")) {
+							Point temp=new Point((int)pt.getX()+getHeight()/9, (int)pt.getY()-getHeight()/9);
+							int[] a= {getHeight()/9, getHeight()*2/9};
+							System.out.println("no domino in the way");
+							if(!set.ifExceed(temp, false)) {
+								System.out.println("Didnt exceed");
+							rectPt.add(temp);
+							rectVal.add(a);}
+							//rect.put(temp, a);
+						}
+						System.out.println();
+					}
+				}
+			}
+		}
+		repaint();
+	}
+	//str is up, down, left, right
+	//both horizontal
+	public boolean straightHoriz(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		if(str.equals("up")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				if(!currentKing.get(d).equals(p)) {
+				if(!d.isHome()) {
+					if(p.getX()>=loc.getX() && p.getX()<=loc.getX()+getHeight()*2/9 && p2.getY()==loc.getY()) {
+						//System.out.println("false 1");
+						return false;}
+					if(p2.getX()>loc.getX() && p2.getX()<loc.getX()+getHeight()*2/9 && p2.getY()==loc.getY()){
+						//System.out.println("false 2");
+						return false;}
+					if(p.getX()==loc.getX() && p2.getX()==loc.getX()+getHeight()*2/9 && p2.getY()==loc.getY()){
+						//System.out.println("false 3");
+						return false;}}}
+				else{
+					Point a= new Point((int)loc.getX(), (int)loc.getY()-getHeight()/9);
+					Point b= new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY());
+					if(within(p, p2, a, b))
+						return false;
+				}}
+		}
+		else if(str.equals("down"))
+		{
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				if(!currentKing.get(d).equals(p) && currentKing.get(d)!=(p)) 
+				{
+					Point a= new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+					Point b= new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()*2/9);
+					if(within(p, p2, a, b))
+						return false;
+				/*if(!d.isHome()) 
+				 * if(p.getX()>=loc.getX() && p.getX()<=loc.getX()+getHeight()*2/9 && p.getY()==loc.getY()+getHeight()/9){
+					System.out.println("false 1");
+					return false;}
+				if(p2.getX()>loc.getX() && p2.getX()<loc.getX()+getHeight()*2/9 && p.getY()==loc.getY()+getHeight()/9){
+					System.out.println("false 2");
+					return false;}
+				if(p.getX()==loc.getX() && p2.getX()==loc.getX()+getHeight()*2/9 && p.getY()==loc.getY()+getHeight()/9){
+					System.out.println("false 3");
+					return false;}}
+				else{
+					Point a= new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+					Point b= new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()*2/9);
+					if(within(p, p2, a, b))
+						return false;
+				}*/
+				}
+		}}
+		else if(str.equals("left"))
+		{
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				if(!currentKing.get(d).equals(p)) {
+				if(!d.isHome()) {
+				if(p.getX()==loc.getX()-getHeight()*2/9 && p.getY()==loc.getY() && p2.getX()==loc.getX() && p2.getY()==loc.getY()+getHeight()/9){
+					//System.out.println("false 1");
+					return false;}
+				if(p2.getX()<loc.getX() && p2.getX()>loc.getX()-getHeight()*2/9)
+				{
+					if(p2.getY()==loc.getY()+getHeight()/9){
+						//System.out.println("false 2");
+						return false;}
+					if(p.getY()==loc.getY()){
+						//System.out.println("false 3");
+						return false;}
+				}
+				if(p.getX()==loc.getX()-getHeight()/9 && (p.getY()==loc.getY() || p2.getY()==loc.getY()+getHeight()/9)){
+					//System.out.println("false 4");
+					return false;}}
+				else{
+					Point a= new Point((int)loc.getX()-getHeight()*2/9, (int)loc.getY());
+					Point b= new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+					if(within(p, p2, a, b))
+						return false;
+				}}
+		}}
+		if(str.equals("right"))
+		{
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				if(!currentKing.get(d).equals(p)) {
+				if(!d.isHome()) {
+				if(p.getX()==loc.getX()+getHeight()*2/9 && p.getY()==loc.getY() && p2.getY()==loc.getY()+getHeight()/9)
+				{
+					//System.out.println("false 1");
+					return false;}
+				if(p2.getX()>loc.getX()+getHeight()*2/9 && p2.getX()<loc.getX()+getHeight()*4/9)
+				{
+					if(p2.getY()==loc.getY()+getHeight()/9){
+						//System.out.println("false 2");
+						return false;}
+					if(p.getY()==loc.getY()){
+						//System.out.println("false 3");
+						return false;}
+				}
+				if(p.getX()==loc.getX()+getHeight()*2/9 && (p.getY()==loc.getY() || p2.getY()==loc.getY()+getHeight()/9))
+				{
+					//System.out.println("false 4");
+					return false;}}
+				else{
+						Point a= new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+						Point b= new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()/9);
+						if(within(p, p2, a, b))
+							return false;
+					}
+				}
+				
+		}}
+		return true;
+	}
+	
+	//kingdom domino left match selected domino right
+	//same is or is not home tile
+	public boolean leftRight(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("up")){
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("down")){
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()*2/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	//kingdom domino right match selected domino left
+	public boolean rightLeft(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("up")){
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/3, (int)loc.getY());
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("down")){
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/3, (int)loc.getY()+getHeight()*2/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	//left match left
+	//left, down
+	public boolean leftVert(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("left")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY());
+				Point b=new Point((int)loc.getX(), (int)loc.getY()+getHeight()*2/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("down")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/3);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//right match right
+	//right, up
+	public boolean rightVert(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("right")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/3, (int)loc.getY()+getHeight()/9);
+				if(d.isHome()) {
+					a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()-getHeight()/9);
+					b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()/9);
+				}
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("up")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()-getHeight()*2/9);
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY());
+				if(d.isHome()) {
+					a=new Point((int)loc.getX(), (int)loc.getY()-getHeight()*2/9);
+					b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+				}
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//kingdom domino right match left
+	//right down up
+	public boolean rightLeftVert(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("right")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY());
+				Point b=new Point((int)loc.getX()+getHeight()/3, (int)loc.getY()+getHeight()*2/9);
+				if(d.isHome()) {
+					a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+					b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()*2/9);
+				}
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("down")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()/3);
+				if(d.isHome()) {
+					a=new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+					b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/3);
+				}
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("up")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()/3);
+				if(d.isHome()) {
+					a=new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+					b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/3);
+				}
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//kingdom domino left match right
+	//left, up
+	public boolean leftRightVert(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("left")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("up")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX(), (int)loc.getY()-getHeight()*2/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//left match left
+	//kingdom domino vertical
+	public boolean leftVertL(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("right")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+				Point b=new Point((int)loc.getX()+getHeight()/3, (int)loc.getY()+getHeight()/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("up")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX(), (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY());
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//left match right
+	//kingdom domino vertical 
+	public boolean leftVertR(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("left")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()*2/9, (int)loc.getY());
+				Point b=new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("up")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//right match left
+	//kingdom domino vertical
+	public boolean rightVertL(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("right")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()/3, (int)loc.getY()+getHeight()*2/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("down")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX(), (int)loc.getY()+getHeight()*2/9);
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()/3);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//right match right
+	//kingdom domino vertical
+	public boolean rightVertR(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("left")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()*2/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX(), (int)loc.getY()+getHeight()*2/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("down")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY()+getHeight()*2/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/3);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	//left match left
+	//both vertical
+	public boolean leftVV(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("left")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY());
+				Point b=new Point((int)loc.getX(), (int)loc.getY()+getHeight()*2/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("right")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()*2/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//right match left
+	//both vertical
+	public boolean rightVLV(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("left")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX(), (int)loc.getY()+getHeight()/3);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("right")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()/3);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("down")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX(), (int)loc.getY()+getHeight()*2/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()+getHeight()*4/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//left match right
+	//both vertical
+	public boolean leftVRV(ArrayList<Point[]> points, Domino d, String str)
+	{
+		Iterator<Point[]> iter=points.iterator();
+		Point loc=currentKing.get(d);
+		
+		if(str.equals("left")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()-getHeight()/9, (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX(), (int)loc.getY()+getHeight()/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("right")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY()-getHeight()/9);
+				Point b=new Point((int)loc.getX()+getHeight()*2/9, (int)loc.getY()+getHeight()/9);
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		else if(str.equals("up")) {
+			while(iter.hasNext()) {
+				Point[] aPt=iter.next();
+				Point p=aPt[0];
+				Point p2=aPt[1];
+				Point a=new Point((int)loc.getX(), (int)loc.getY()-getHeight()*2/9);
+				Point b=new Point((int)loc.getX()+getHeight()/9, (int)loc.getY());
+				if(within(a, b, p, p2))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	//a and b are corners of to be placed domino, p and p2 are the points of a domino
+	public boolean within(Point a, Point b, Point p, Point p2)
+	{
+		double xp=p.getX();
+		double xp2=p2.getX();
+		double yp=p.getY();
+		double yp2=p2.getY();
+		
+		double x1=xp+10;
+		double x2=(xp+xp2)/2;
+		double x3=xp2-10;
+		double y1=yp+10;
+		double y2=(yp+yp2)/2;;
+		double y3=yp2-10;
+		
+		if(x1>a.getX() && x1<b.getX() && y1>a.getY() && y1<b.getY())
+		{
+			//System.out.println("within true 1");
+			return true;
+		}
+		if(x1>a.getX() && x1<b.getX() && y2>a.getY() && y2<b.getY())
+		{
+			//System.out.println("within true 2");
+			return true;
+		}
+		if(x1>a.getX() && x1<b.getX() && y3>a.getY() && y3<b.getY())
+		{
+			//System.out.println("within true 3");
+			return true;
+		}
+		
+		if(x2>a.getX() && x2<b.getX() && y1>a.getY() && y1<b.getY())
+		{
+			//System.out.println("within true 4");
+			return true;
+		}
+		if(x2>a.getX() && x2<b.getX() && y2>a.getY() && y2<b.getY())
+		{
+			//System.out.println("within true 5");
+			return true;
+		}
+		if(x2>a.getX() && x2<b.getX() && y3>a.getY() && y3<b.getY())
+		{
+			//System.out.println("within true 6");
+			return true;
+		}
+		
+		if(x3>a.getX() && x3<b.getX() && y3>a.getY() && y3<b.getY())
+		{
+			//System.out.println("within true 7");
+			return true;
+		}
+		if(x3>a.getX() && x3<b.getX() && y2>a.getY() && y2<b.getY())
+		{
+			//System.out.println("within true 8");
+			return true;
+		}
+		if(x3>a.getX() && x3<b.getX() && y1>a.getY() && y1<b.getY())
+		{
+			//System.out.println("within true 9");
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public void mouseClicked(MouseEvent e) {
+		int x = e.getX();
+		int y = e.getY();
+		if (e.getButton()==e.BUTTON1)
+		{
+			//if clicked in one of the boxes:
+			boolean putDown=false;
+			Point p=new Point();
+			for(int i=0; i<rectPt.size(); i++) {
+				p=rectPt.get(i);
+				int[] t=rectVal.get(i);
+				double cdX=p.getX();
+				double cdY=p.getY();
+				//if(x>cdX && x<cdX+t[0] && y>cdY && y<cdY+t[1])
+				
+				//changed to only respond if the left side or top side is clicked
+				if(t[0]>t[1]) {
+					if(x>cdX && x<cdX+t[0]/2 && y>cdY && y<cdY+t[1]) {
+						System.out.println("a box is clicked");
+						currentKing.put(selectedDom, p);
+						System.out.println("domino "+selectedDom.getNum()+" put down");
+						putDown=true;
+						break;
+					}
+				}
+				else {
+					if(x>cdX && x<cdX+t[0] && y>cdY && y<cdY+t[1]/2)	
+					{
+						System.out.println("a box is clicked");
+						currentKing.put(selectedDom, p);
+						System.out.println("domino "+selectedDom.getNum()+" put down");
+						putDown=true;
+						break;}
+				}
+			}
+			
+			//restart
+			if(x>getHeight()*6/5+30 && x<getHeight()*6/5+130 && y>getHeight()*5/6 && y<getHeight()*5/6+30)
+			{
+				basics();
+				textBox=true;
+				numSide=true;
+				numSide2=true;
+				finished=false;
+				selected=false;
+				cnt=0;
+			}
+			
+			if(putDown) {
+				try {
+					set(p);
+				}
+				catch(IOException E) {}
+			}
+				
+		}
+		repaint();
+	}
+
+	//add newly placed domino to the king's kingdom & set currentKing to next player, move displayDom2 left, set new dot position & get new dominoes
+	public void set(Point p) throws IOException
+	{
+		rectPt.clear();
+		rectVal.clear();
+		
+		//shift dominoes if necessary
+		/*if(!goingOut(p).equals("")) {
+			System.out.println("too "+goingOut(p));
+			shift(goingOut(p));
+		}*/
+		
+		//remove domino from the displayDom
+		Iterator<Domino> iter=displayDom.keySet().iterator();
+		double x=displayDom.remove(iter.next()).getX();
+		if(selectedDom!=null)
+			System.out.println("selectedDom is rotated: "+selectedDom.isRot());
+		if(crKing.equals("red") && selectedDom!=null) {
+			Red=currentKing;
+			if(p!=null) {
+				Point p2=new Point();
+				if(selectedDom.getRot()==0 || selectedDom.getRot()==180)
+					p2.setLocation(p.getX()+getHeight()*2/9, p.getY()+getHeight()/9);
+				else
+					p2.setLocation(p.getX()+getHeight()/9, p.getY()+getHeight()*2/9);
+				game.getRed().addSize(p, p2);
+				game.getRed().setCoordinates(Red);
+				game.getRed().ifExceed(p, !selectedDom.isRot());
+				game.getRed().around(selectedDom, p);}}
+			
+		else if(crKing.equals("yellow")&& selectedDom!=null)
+		{
+			Yellow=currentKing;
+			if(p!=null) {
+			Point p2=new Point();
+			if(selectedDom.getRot()==0 || selectedDom.getRot()==180)
+				p2.setLocation(p.getX()+getHeight()*2/9, p.getY()+getHeight()/9);
+			else
+				p2.setLocation(p.getX()+getHeight()/9, p.getY()+getHeight()*2/9);
+			game.getYellow().addSize(p, p2);
+			game.getYellow().setCoordinates(Yellow);
+			game.getYellow().ifExceed(p, !selectedDom.isRot());
+			game.getYellow().around(selectedDom, p);}
+		}
+			
+		else if(crKing.equals("blue")&& selectedDom!=null)
+		{
+			Blue=currentKing;
+			if(p!=null) {
+			Point p2=new Point();
+			if(selectedDom.getRot()==0 || selectedDom.getRot()==180)
+				p2.setLocation(p.getX()+getHeight()*2/9, p.getY()+getHeight()/9);
+			else
+				p2.setLocation(p.getX()+getHeight()/9, p.getY()+getHeight()*2/9);
+			game.getBlue().addSize(p, p2);
+			game.getBlue().setCoordinates(Blue);
+			game.getBlue().ifExceed(p, !selectedDom.isRot());
+			game.getBlue().around(selectedDom, p);}
+		}
+		else if(crKing.equals("green")&& selectedDom!=null)
+		{
+			Green=currentKing;
+			if(p!=null) {
+			Point p2=new Point();
+			if(selectedDom.getRot()==0 || selectedDom.getRot()==180)
+				p2.setLocation(p.getX()+getHeight()*2/9, p.getY()+getHeight()/9);
+			else
+				p2.setLocation(p.getX()+getHeight()/9, p.getY()+getHeight()*2/9);
+			game.getGreen().addSize(p, p2);
+			game.getGreen().setCoordinates(Green);
+			game.getGreen().ifExceed(p, !selectedDom.isRot());
+			game.getGreen().around(selectedDom, p);}
+		}
+		else
+			System.out.println("set malfunction");
+		
+		selectedDom=null;
+		
+		//when previous column are all selected
+		if(displayDom.size()==0 && !finished)
+		{
+			//set player domino to second set, clear second set
+			plDom.clear();
+			for(Domino d:plDom2.keySet()) {
+				plDom.put(d, plDom2.get(d));
+			}
+			plDom2.clear();
+			Iterator<Domino> iterr=plDom.keySet().iterator();
+			crKing=plDom.get(iterr.next());
+			set(crKing);
+			
+			displayDom.clear();
+			TreeSet<Domino> set=new TreeSet<>();
+			for(Domino d: displayDom2.keySet()) {
+				set.add(d);
+			}
+			setDisplayDom(set);
+			setDisplayDom();
+			for(Domino d:dots.keySet()) {
+				Point point=dots.get(d);
+				point=new Point((int)x, (int)point.getY());
+				dots.replace(d, point);
+			}
+			numSide2=true;
+		}
+		else{
+			System.out.println("DisplayDom size not zero");
+			if(displayDom.size()>0) {
+				Iterator<Domino> iterr=displayDom.keySet().iterator();
+				set(plDom.get(iterr.next()));}
+		}
+		
+		//only 4 dominoes left on displayDom
+		if(finished) {
+			if(displayDom.size()==4)
+			{
+				Iterator<Domino> tempIter=displayDom.keySet().iterator();
+				selectedDom=tempIter.next();
+			}
+			
+			//when all four dominoes are placed, calculate score
+			if(displayDom.size()==0) {
+				players=game.winner();
+				
+				System.out.println("players: "+players);
+				
+				//assign new positions to dots
+				for(int i=0; i<players.size(); i++) {
+					for(Domino d: dots.keySet()) {
+						if(players.get(i).getName().equals(d.getName()))
+							dots.replace(d, new Point(getHeight()*6/5+10, 20+getHeight()/6*(i)));
+					}
+				}
+				
+				if(!game.ifTie())
+					result=players.get(0).getName();
+				else
+					result=game.winnerTied();
+				
+				if(result.contains("red"))
+					set("red");
+				else if(result.contains("yellow"))
+					set("yellow");
+				else if(result.contains("blue"))
+					set("blue");
+				else if(result.contains("green"))
+					set("green");
+			}
+			else {
+				Iterator<Domino> iterator=displayDom.keySet().iterator();
+				selectedDom=iterator.next();
+				System.out.println("calling storeRect upon finishing");
+				storeRect();
+			}
+		}
+		
+	}
+	
+	//set crKing, kingdom dominoes, choice
+	public void set(String name)
+	{
+		System.out.println("the name of this king is ---------------------------------------------- "+name);
+		if(name.equals("red")) {
+			crKing="red";
+			currentKing=Red;
+			choice=7;
+		}
+		else if(name.equals("yellow")) {
+			crKing="yellow";
+			currentKing=Yellow;
+			choice=8;
+		}
+		else if(name.equals("blue")) {
+			crKing="blue";
+			currentKing=Blue;
+			choice=9;
+		}
+		else if(name.equals("green")) {
+			crKing="green";
+			currentKing=Green;
+			choice=0;
+		}
+	}
+	
+	//return which way the rectangles are exceeding the frame, return null if it doesnt exceed
+	/*public String goingOut(Point p)
+	{
+		double x=p.getX();
+		double y=p.getY();
+		
+		if(x<5)
+			return "left";
+		if(x>5+getHeight()*6/5-getHeight()*2/9)
+			return "right";
+		if(y<5)
+			return "up";
+		if(y>getHeight()-5-getHeight()*2/9)
+			return "down";
+		return "";
+	}
+	
+	//move all points in the kingdom getHeight()*2/9 units to one direction, reset coordinates & size in dominoset class
+	public void shift(String s)
+	{
+		//too high, needs to move downward
+		if(s.equals("up")) {
+			for(Point p: currentKing.values()) 
+				p.setLocation(p.getX(), p.getY()+getHeight()*2/9);
+			getKing().setCoordinates(currentKing);
+			
+			ArrayList<Point[]> list=getKing().getSize();
+			for(Point[] p: list) {
+				Point p1=p[0];
+				Point p2=p[1];
+				p1.setLocation(p1.getX(), p1.getY()+getHeight()*2/9);
+				p2.setLocation(p2.getX(), p2.getY()+getHeight()*2/9);
+			}
+			getKing().setSize(list);
+		}
+		
+		else if(s.equals("down")) {
+			for(Point p: currentKing.values()) 
+				p.setLocation(p.getX(), p.getY()-getHeight()*2/9);
+			getKing().setCoordinates(currentKing);
+			
+			ArrayList<Point[]> list=getKing().getSize();
+			for(Point[] p: list) {
+				Point p1=p[0];
+				Point p2=p[1];
+				p1.setLocation(p1.getX(), p1.getY()-getHeight()*2/9);
+				p2.setLocation(p2.getX(), p2.getY()-getHeight()*2/9);
+			}
+			getKing().setSize(list);
+		}
+		
+		if(s.equals("left")) {
+			for(Point p: currentKing.values()) 
+				p.setLocation(p.getX()+getHeight()*2/9, p.getY());
+			getKing().setCoordinates(currentKing);
+			
+			ArrayList<Point[]> list=getKing().getSize();
+			for(Point[] p: list) {
+				Point p1=p[0];
+				Point p2=p[1];
+				p1.setLocation(p1.getX()+getHeight()*2/9, p1.getY());
+				p2.setLocation(p2.getX()+getHeight()*2/9, p2.getY());
+			}
+			getKing().setSize(list);
+		}
+		
+		if(s.equals("right")) {
+			for(Domino d: currentKing.keySet()) 
+			{
+				if(d.isKing())
+					System.out.println("king");
+				else
+					System.out.println("Domino number: "+d.getNum());
+				Point p=currentKing.get(d);
+				System.out.println("point before: "+p);
+				Point p2=new Point((int)p.getX()-getHeight()*2/9, (int)p.getY());
+				System.out.println("point after: "+p2);
+				System.out.println();
+				currentKing.replace(d, p, p2);
+			}
+				
+			getKing().setCoordinates(currentKing);
+			
+			ArrayList<Point[]> list=getKing().getSize();
+			for(Point[] p: list) {
+				Point p1=p[0];
+				Point p2=p[1];
+				p1.setLocation(p1.getX()-getHeight()*2/9, p1.getY());
+				p2.setLocation(p2.getX()-getHeight()*2/9, p2.getY());
+			}
+			getKing().setSize(list);
+		}
+	}*/
+	
+	public DominoSet getKing()
+	{
+		if(crKing.equals("red"))
+			return game.getRed();
+		if(crKing.equals("yellow"))
+			return game.getYellow();
+		if(crKing.equals("blue"))
+			return game.getBlue();
+		if(crKing.equals("green"))
+			return game.getGreen();
+		return null;
+	}
+	
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public Domino getSelectedDom()
+	{
+		return selectedDom;
+	}
+	
+	@Override
+	public void keyTyped(KeyEvent e) {
+		int n = e.getKeyChar() - '0';
+		if(n==7 || n==8 || n==9 || n==0)
+		{
+			choice=n;
+			System.out.println(choice);
+			if(crKing.equals("red")) {
+				if(n!=7)
+					selected=false;
+			}
+			if(crKing.equals("yellow")) {
+				if(n!=8)
+					selected=false;
+			}
+			if(crKing.equals("blue")) {
+				if(n!=9)
+					selected=false;
+			}
+			if(crKing.equals("green")) {
+				if(n!=0)
+					selected=false;
+			}
+		}
+		else if(n==1 ||n==2 ||n==3 ||n==4)
+		{
+			Iterator<Domino> iter=displayDom.keySet().iterator();
+			Iterator<Domino> iterr=dots.keySet().iterator();
+			String name="blue";
+			
+			//System.out.println(cnt);
+			if(cnt<4) {choice=9;
+			if(n==1)
+			{
+				Domino d=iter.next();
+				//selectedDom=d;
+				Point p=displayDom.get(d);
+				
+				boolean exist=false;
+				Iterator<Point> iterP= dots.values().iterator();
+				while(iterP.hasNext()) {
+					if(iterP.next()==p)
+						exist=true;
+				}
+				
+				if(!exist) {
+					ArrayList<Integer> temp=new ArrayList<>();
+					for(Point ptt: dots.values()) {
+						if(ptt.getX()==850)
+							temp.add((int)ptt.getY());
+					}
+					Collections.sort(temp);
+					
+					for(Domino domino: dots.keySet()) {
+						Point apt=dots.get(domino);
+						if(apt.getX()==850 && apt.getY()==temp.get(0)) {
+							name=domino.getName();
+							if(name.equals("red"))
+								choice=7;
+							else if(name.equals("yellow"))
+								choice=8;
+							else if(name.equals("blue"))
+								choice=9;
+							else if(name.equals("green"))
+								choice=0;
+							dots.replace(domino, dots.get(domino), p);
+						}
+					}
+				cnt++;
+				if(name.equals("red"))
+					plDom.put(d, "red");
+				else if(name.equals("yellow"))
+					plDom.put(d, "yellow");
+				else if(name.equals("blue"))
+					plDom.put(d, "blue");
+				else
+					plDom.put(d, "green");
+			}}
+			else if(n==2)
+			{
+				iter.next();
+				Domino d=iter.next();
+				Point p=displayDom.get(d);
+				
+				boolean exist=false;
+				Iterator<Point> iterP= dots.values().iterator();
+				while(iterP.hasNext()) {
+					if(iterP.next()==p)
+						exist=true;
+				}
+				
+				if(!exist) {
+					ArrayList<Integer> temp=new ArrayList<>();
+					for(Point ptt: dots.values()) {
+						if(ptt.getX()==850)
+							temp.add((int)ptt.getY());
+					}
+					Collections.sort(temp);
+					
+					for(Domino domino: dots.keySet()) {
+						Point apt=dots.get(domino);
+						if(apt.getX()==850 && apt.getY()==temp.get(0)) {
+							name=domino.getName();
+							if(name.equals("red"))
+								choice=7;
+							else if(name.equals("yellow"))
+								choice=8;
+							else if(name.equals("blue"))
+								choice=9;
+							else if(name.equals("green"))
+								choice=0;
+							dots.replace(domino, dots.get(domino), p);
+						}
+					}
+				cnt++;
+				if(name.equals("red"))
+					plDom.put(d, "red");
+				else if(name.equals("yellow"))
+					plDom.put(d, "yellow");
+				else if(name.equals("blue"))
+					plDom.put(d, "blue");
+				else
+					plDom.put(d, "green");
+			}}
+			else if(n==3)
+			{
+				iter.next();iter.next();
+				Domino d=iter.next();
+				Point p=displayDom.get(d);
+				
+				boolean exist=false;
+				Iterator<Point> iterP= dots.values().iterator();
+				while(iterP.hasNext()) {
+					if(iterP.next()==p)
+						exist=true;
+				}
+				
+				if(!exist) {
+					ArrayList<Integer> temp=new ArrayList<>();
+					for(Point ptt: dots.values()) {
+						if(ptt.getX()==850)
+							temp.add((int)ptt.getY());
+					}
+					Collections.sort(temp);
+					
+					for(Domino domino: dots.keySet()) {
+						Point apt=dots.get(domino);
+						if(apt.getX()==850 && apt.getY()==temp.get(0)) {
+							name=domino.getName();
+							if(name.equals("red"))
+								choice=7;
+							else if(name.equals("yellow"))
+								choice=8;
+							else if(name.equals("blue"))
+								choice=9;
+							else if(name.equals("green"))
+								choice=0;
+							dots.replace(domino, dots.get(domino), p);
+						}
+					}
+				cnt++;
+				if(name.equals("red"))
+					plDom.put(d, "red");
+				else if(name.equals("yellow"))
+					plDom.put(d, "yellow");
+				else if(name.equals("blue"))
+					plDom.put(d, "blue");
+				else
+					plDom.put(d, "green");
+			}}
+			else if(n==4)
+			{
+				iter.next(); iter.next();iter.next();
+				Domino d=iter.next();
+				Point p=displayDom.get(d);
+				
+				boolean exist=false;
+				Iterator<Point> iterP= dots.values().iterator();
+				while(iterP.hasNext()) {
+					if(iterP.next()==p)
+						exist=true;
+				}
+				
+				if(!exist) {
+					ArrayList<Integer> temp=new ArrayList<>();
+					for(Point ptt: dots.values()) {
+						if(ptt.getX()==850)
+							temp.add((int)ptt.getY());
+					}
+					Collections.sort(temp);
+					
+					for(Domino domino: dots.keySet()) {
+						Point apt=dots.get(domino);
+						if(apt.getX()==850 && apt.getY()==temp.get(0)) {
+							name=domino.getName();
+							if(name.equals("red"))
+								choice=7;
+							else if(name.equals("yellow"))
+								choice=8;
+							else if(name.equals("blue"))
+								choice=9;
+							else if(name.equals("green"))
+								choice=0;
+							dots.replace(domino, dots.get(domino), p);
+						}
+					}
+				cnt++;
+				if(name.equals("red"))
+					plDom.put(d, "red");
+				else if(name.equals("yellow"))
+					plDom.put(d, "yellow");
+				else if(name.equals("blue"))
+					plDom.put(d, "blue");
+				else
+					plDom.put(d, "green");
+			}}
+			}
+			else if(!finished)
+			{
+				if(cnt==4) {
+					Iterator<Domino> t=plDom.keySet().iterator();
+					set(plDom.get(t.next()));
+				}
+				iterr=displayDom.keySet().iterator();
+				iter=displayDom2.keySet().iterator();
+				if(n==1)
+				{
+					//dom is the selected domino in the first column
+					Domino dom=iterr.next();
+					
+					name=crKing;
+					//d is the first domino in the second column
+					Domino d=iter.next();
+					
+					boolean exist=false;
+					Iterator<Point> iterP= dots.values().iterator();
+					while(iterP.hasNext()) {
+						if(iterP.next()==displayDom2.get(d))
+							exist=true;
+					}
+					
+					if(!exist) {
+						setSelectedDom(displayDom.get(dom));
+						selected=true;
+					//set new location of dot
+					for(Domino randomD: dots.keySet()) {
+						if(dots.get(randomD).equals(displayDom.get(dom)))
+							dots.replace(randomD, dots.get(randomD), displayDom2.get(d));
+					}
+					
+					if(name.equals("red"))
+						plDom2.put(d, "red");
+					else if(name.equals("yellow"))
+						plDom2.put(d, "yellow");
+					else if(name.equals("blue"))
+						plDom2.put(d, "blue");
+					else
+						plDom2.put(d, "green");
+				
+				}}
+				else if(n==2)
+				{
+					Domino dom=iterr.next();
+					name=crKing;
+					
+					//d is the second domino in the second column
+					iter.next();
+					Domino d=iter.next();
+					
+					boolean exist=false;
+					Iterator<Point> iterP= dots.values().iterator();
+					while(iterP.hasNext()) {
+						if(iterP.next()==displayDom2.get(d))
+							exist=true;
+					}
+					
+					if(!exist) {
+						setSelectedDom(displayDom.get(dom));
+						selected=true;
+					//set new location of dot
+					for(Domino randomD: dots.keySet()) {
+						if(dots.get(randomD).equals(displayDom.get(dom)))
+							dots.replace(randomD, dots.get(randomD), displayDom2.get(d));
+					}
+					
+					if(name.equals("red"))
+						plDom2.put(d, "red");
+					else if(name.equals("yellow"))
+						plDom2.put(d, "yellow");
+					else if(name.equals("blue"))
+						plDom2.put(d, "blue");
+					else
+						plDom2.put(d, "green");
+				}}
+				else if(n==3)
+				{
+					Domino dom=iterr.next();
+					
+					name=crKing;
+					//d is the third domino in the second column
+					iter.next(); iter.next();
+					Domino d=iter.next();
+					
+					boolean exist=false;
+					Iterator<Point> iterP= dots.values().iterator();
+					while(iterP.hasNext()) {
+						if(iterP.next()==displayDom2.get(d))
+							exist=true;
+					}
+					
+					if(!exist) {
+						setSelectedDom(displayDom.get(dom));
+						selected=true;
+					//set new location of dot
+					for(Domino randomD: dots.keySet()) {
+						if(dots.get(randomD).equals(displayDom.get(dom)))
+							dots.replace(randomD, dots.get(randomD), displayDom2.get(d));
+					}
+					
+					if(name.equals("red"))
+						plDom2.put(d, "red");
+					else if(name.equals("yellow"))
+						plDom2.put(d, "yellow");
+					else if(name.equals("blue"))
+						plDom2.put(d, "blue");
+					else
+						plDom2.put(d, "green");
+				}}
+				else if(n==4)
+				{
+					Domino dom=iterr.next();
+					
+					name=crKing;
+					//d is the fourth domino in the second column
+					iter.next();iter.next();iter.next();
+					Domino d=iter.next();
+					
+					boolean exist=false;
+					Iterator<Point> iterP= dots.values().iterator();
+					while(iterP.hasNext()) {
+						if(iterP.next()==displayDom2.get(d))
+							exist=true;
+					}
+					
+					if(!exist) {
+						setSelectedDom(displayDom.get(dom));
+						selected=true;
+					//set new location of dot
+					for(Domino randomD: dots.keySet()) {
+						if(dots.get(randomD).equals(displayDom.get(dom)))
+							dots.replace(randomD, dots.get(randomD), displayDom2.get(d));
+					}
+					
+					if(name.equals("red"))
+						plDom2.put(d, "red");
+					else if(name.equals("yellow"))
+						plDom2.put(d, "yellow");
+					else if(name.equals("blue"))
+						plDom2.put(d, "blue");
+					else
+						plDom2.put(d, "green");
+				}}
+				cnt++;
+				try{
+					System.out.println("storeRect called");
+					storeRect();
+				}
+				catch(Exception E) {}
+			}
+			
+			
+			if(cnt==4)
+				setDisplayDom();
+		}
+		
+		char s=e.getKeyChar();
+		if(s=='r' || s=='R')
+		{
+			selectedDom.rotate();
+			try{storeRect();}
+			catch(IOException E) {}
+		}
+		if(s=='h' || s=='H')
+			textBox=true;
+		//discard the domino
+		if(rectVal.size()==0 && rectPt.size()==0 && (s=='d' || s=='D'))
+		{
+			Point p=null;
+			try {
+				set(p);
+			}
+			catch(IOException E) {}
+		}
+		
+		repaint();
+		
+	}
+	
+	public void setSelectedDom(Point p)
+	{
+		for(Domino d:displayDom.keySet()) {
+			if(displayDom.get(d).equals(p))
+				selectedDom=d;
+		}
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode()==KeyEvent.VK_ENTER)
+		{ 
+			textBox=false;
+			repaint();
+		}
+		if(e.getKeyCode()==KeyEvent.VK_SPACE)
+		{ 
+			if(numSide==false)
+				numSide2=false;
+			numSide=false;
+			repaint();
+		}	
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void addNotify()
+	{
+		super.addNotify();
+		requestFocus();
+	}
+
+	public void setDisplayDom(TreeSet<Domino> set)
+	{
+		Iterator<Domino> iter=set.iterator();
+		int x=900;
+		int y=40;
+		Domino d=iter.next();
+		displayDom.put(d, new Point(x, y));
+		d=iter.next();
+		displayDom.put(d, new Point(x, y*3));
+		d=iter.next();
+		displayDom.put(d, new Point(x, y*5));
+		d=iter.next();
+		displayDom.put(d, new Point(x, y*7));
+	}
+	public void setDisplayDom()
+	{
+		displayDom2.clear();
+		if(game.hasMore()) {
+			TreeSet<Domino> set=game.get4Dom();
+			Iterator<Domino> iter=set.iterator();
+			int x=1100;
+			int y=40;
+			displayDom2.put(iter.next(), new Point(x, y));
+			displayDom2.put(iter.next(), new Point(x, y*3));
+			displayDom2.put(iter.next(), new Point(x, y*5));
+			displayDom2.put(iter.next(), new Point(x, y*7));}
+		else {
+			finished=true;
+			textBox=true;
+		}
+			
+	}
+
+	public int getHeight()
+	{
+		return height;
+	}
+	public int getWidth()
+	{
+		return width;
+	}
+}

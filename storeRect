@@ -1,0 +1,44 @@
+public void storeRect(TreeSet<Domino> doms)
+	{
+		
+		ArrayList<Domino> dominoes = new ArrayList<>();
+		dominoes.addAll(doms);
+		getOuterDom<dominoes>;
+		boolean right,left;
+		
+		Iterator<Domino> iter = doms.iterator();
+		
+		while(iter.hasNext())
+		{
+			Domino d = iter.next();
+			
+			if(d.getLeft().equals(selectedDom))
+			{
+				left = true;
+				
+			}else {left=false;}
+			
+			if(d.getRight().equals(selectedDom))
+			{
+				right = true;
+			}else {right=false;}
+			
+			if(right == true && left == true) 
+			{
+				if(selectedDom.isRot() == true)
+				{
+					if(coordinates.get(d,(d.getHeight()*2/9,d.getHeight()/9)) == null)
+					{
+					addToCoordinates(d,(d.getHeight()*2/9,d.getHeight()/9));
+					}
+				}else 
+				if(selectedDom.isRot() == false)
+				{
+					if(coordinates.get(d,(d.getHeight()/9,d.getHeight()/18)) == null)
+					{
+					addToCoordinates(d,(d.getHeight()/9,d.getHeight()/18));
+					}
+				}
+			}
+		}
+	}

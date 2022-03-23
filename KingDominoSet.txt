@@ -1,0 +1,31 @@
+import java.util.*; 
+public class KingDominoSet {
+	Map <Domino, ArrayList<Integer>> connectedDom = new TreeMap<Domino,ArrayList<Integer>>(); //Dom number and num of doms touching
+	Map<Domino, Point> coordinates = new HashMap<Domino, Point>(); // key = dom val = coords
+	ArrayList<Domino> getOuterDom = new ArrayList<Domino>();
+	ArrayList<Integer> countedDom = new ArrayList<Integer>();
+	ArrayList<Domino> getMatchableDom(Domino d);
+
+	Map<String property, int[] numberOfThatProperty & numberOfCrowns> properties = new TreeMap<String property, int[] numberOfThatProperty & numberOfCrowns>();
+	int playerNum;
+	KingDominoSet(int name, KingDomino home card, Point pt){
+	playerNum = name;
+	}
+	Boolean ifMatch(Domino d, Domino dom) {
+		if(dom == d)
+			return true;
+	}
+	toDraw(ArrayList<Integer> list) {
+		coordinates.put();
+	}
+	addToConnectDom(Domino dom, Point pt){
+		
+	}
+	addToCoordinates(Domino dom, Point pt){
+		
+	}
+	void collectProperty() {
+		
+	}
+}
+S
